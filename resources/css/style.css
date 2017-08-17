@@ -1,0 +1,22 @@
+#bt-entrar-login {
+    -fx-border-color : white;
+    -fx-text-fill: white;
+}
+
+#label-login {
+    -fx-text-fill: white;
+}
+
+#bt-sair-login {
+    -fx-border-color : white;
+    -fx-text-fill: white;
+}
+
+#lb-cadastrar-login {
+    -fx-text-fill: white;
+    -fx-font-size : 15;
+}
+
+#pane-login {
+    -fx-background-image : url('file:resources/img/bg-login.jpg');
+}

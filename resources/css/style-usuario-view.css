@@ -1,0 +1,32 @@
+#bt-entrar-login {
+    -fx-border-radius: 4;
+    -fx-border-color: white;
+    -fx-text-fill: white;
+    -fx-background-color : #4268b3;
+    -fx-font-size : 12;
+}
+
+#label-login {
+    -fx-text-fill: white;
+}
+
+#bt-sair-login {
+    -fx-border-radius: 4;
+    -fx-border-color: white;
+    -fx-text-fill: white;
+    -fx-background-color : #4268b3;
+    -fx-font-size : 12;
+}
+
+#lb-cadastrar-login {
+    -fx-text-fill: white;
+    -fx-font-size : 15;
+    -fx-border-radius: 4;
+    -fx-background-color : #f65066;
+    -fx-border-color: white;
+    -fx-alignment : center;
+}
+
+#pane-login {
+    -fx-background-image : url('file:resources/img/bg-login.jpg');
+}

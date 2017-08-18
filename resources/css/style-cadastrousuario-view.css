@@ -1,0 +1,18 @@
+#pane {
+    -fx-background-image : url('file:resources/img/bg-cadastro.jpg');
+}
+
+#botao-salvar {
+    -fx-background-color : #28b3de;
+    -fx-text-fill : white;
+}
+
+#botao-voltar {
+    -fx-background-color : #99c280;
+    -fx-text-fill : white;
+}
+
+#label-cadastro {
+    -fx-font-size : 20;
+}
+

@@ -103,10 +103,10 @@ public class CadastroUsuarioView extends Application {
 
 	}
 	
-	private void cadastrarUsuario() {
+	private boolean cadastrarUsuario() {
 		Usuario usuario = new Usuario(txUsuario.getText(), txSenha.getText());
 		UsuarioController usuarioCtrl = new UsuarioController();
-		boolean abc = usuarioCtrl.cadastrarUsuario(usuario);
+		return usuarioCtrl.cadastrarUsuario(usuario);
 	}
 
 	public void setListeners() {
@@ -119,8 +119,7 @@ public class CadastroUsuarioView extends Application {
 					new UsuarioView().start(stage);
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
-				;
+				};
 			}
 		});
 
@@ -128,13 +127,15 @@ public class CadastroUsuarioView extends Application {
 
 			@Override
 			public void handle(Event event) {
-				cadastrarUsuario();
-				try {
-					new UsuarioView().start(stage);
-				} catch (Exception e) {
-					e.printStackTrace();
+				if(cadastrarUsuario()) {
+					try {
+						new UsuarioView().start(stage);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					JOptionPane.showMessageDialog(null, "Falha ao cadastrar usuário", "Erro", JOptionPane.ERROR_MESSAGE);
 				}
-				
 			}
 		});
 	}

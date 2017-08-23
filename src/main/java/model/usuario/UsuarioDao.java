@@ -14,7 +14,7 @@ public class UsuarioDao {
 		Connection conn = new ConnectionFactory().obterConexao();
 		int resultado = 0;
 		String sql = "insert into usuario(usuario,senha) values(?,?)";
-		
+
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, usuario.getUsuario());
@@ -27,7 +27,7 @@ public class UsuarioDao {
 		}
 		return resultado == 1 ? true : false;
 	}
-	
+
 	public Usuario autenticarUsuario(Usuario usuario) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		String sql = "select * from usuario where usuario = ? and senha = ?";
@@ -40,23 +40,20 @@ public class UsuarioDao {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		if(usuarioConsultado != null) {
-			String id;
-			String user;
-			String senha;
-			try {
-				id = usuarioConsultado.getString("id");
-				user = usuarioConsultado.getString("usuario");
-				senha = usuarioConsultado.getString("senha");
-				Usuario usuarioObtido = new Usuario(user,senha,id);
+
+		try {
+			while (usuarioConsultado.next()) {
+				String id = usuarioConsultado.getString("id");
+				String user = usuarioConsultado.getString("usuario");
+				String senha = usuarioConsultado.getString("senha");
+				Usuario usuarioObtido = new Usuario(user, senha, id);
 				return usuarioObtido;
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}			
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
-	
+
 }

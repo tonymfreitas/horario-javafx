@@ -8,4 +8,8 @@ public class UsuarioController {
 		return usuarioDao.cadastrarUsuario(usuario);
 	}
 	
+	public Usuario autenticar(Usuario usuario) {
+		return usuarioDao.autenticarUsuario(usuario);
+	}
+	
 }

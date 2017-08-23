@@ -6,6 +6,15 @@
     -fx-font-size : 12;
 }
 
+#bt-entrar-login:hover {
+	-fx-background-color : #5FBA7E;
+}
+
+#bt-sair-login:hover {
+	-fx-background-color : #f65066;
+}
+
+
 #label-login {
     -fx-text-fill: white;
 }
@@ -16,6 +25,10 @@
     -fx-text-fill: white;
     -fx-background-color : #4268b3;
     -fx-font-size : 12;
+}
+
+#lb-cadastrar-login:hover {
+	-fx-background-color : #EBDF79;	
 }
 
 #lb-cadastrar-login {

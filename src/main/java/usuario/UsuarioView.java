@@ -1,16 +1,23 @@
 package main.java.usuario;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import main.java.PrincipalView;
+import main.java.model.usuario.Usuario;
+import main.java.model.usuario.UsuarioController;
+import main.java.utils.Security;
+import main.java.utils.SessionController;
+import main.java.utils.alert.AlertUsuario;
 
 public class UsuarioView extends Application {
 
@@ -25,7 +32,7 @@ public class UsuarioView extends Application {
 
 		iniciarComponentes();
 		iniciarEstiloNosComponentes();
-		
+
 		setListeners();
 
 		Scene cena = new Scene(pane);
@@ -33,9 +40,9 @@ public class UsuarioView extends Application {
 		primaryStage.setTitle("Horário acadêmico - Login");
 		primaryStage.setResizable(false);
 		primaryStage.show();
-		
+
 		stage = primaryStage;
-		
+
 		iniciarLayoutComponentes();
 	}
 
@@ -87,7 +94,28 @@ public class UsuarioView extends Application {
 		lbCadastrar.setId("lb-cadastrar-login");
 
 	}
-	
+
+	private Usuario autenticarUsuario() {
+		UsuarioController usuarioCtrl = new UsuarioController();
+		String usuario = txLogin.getText();
+		String senha = Security.gerarMD5(txSenha.getText());
+		Usuario usuarioAutenticacao = new Usuario(usuario, senha);
+		return usuarioCtrl.autenticar(usuarioAutenticacao);
+	}
+
+	private boolean validarCamposVazios() {
+		boolean usuarioVazio = txLogin.getText().isEmpty();
+		boolean senhaVazio = txSenha.getText().isEmpty();
+		if (usuarioVazio) {
+			Alert info = AlertUsuario.info("Informação login", "Campo usuário esta vazio");
+			info.showAndWait();
+		} else if (senhaVazio) {
+			Alert info = AlertUsuario.info("Informação login", "Campo senha esta vazio");
+			info.showAndWait();
+		}
+		return usuarioVazio || senhaVazio ? false : true;
+	}
+
 	private void setListeners() {
 		lbCadastrar.setOnMouseClicked(new EventHandler<Event>() {
 
@@ -97,6 +125,28 @@ public class UsuarioView extends Application {
 					new CadastroUsuarioView().start(stage);
 				} catch (Exception e) {
 					e.printStackTrace();
+				}
+			}
+		});
+
+		
+		btEntrar.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				if (validarCamposVazios()) {
+					try {
+						Usuario usuarioAutenticado = autenticarUsuario();
+						if(usuarioAutenticado != null) {
+							SessionController.setUsuario(usuarioAutenticado);
+							new PrincipalView().start(stage);
+						} else {
+							Alert info = AlertUsuario.info("Erro ao tentar logar", "Usuário ou senha inválidos");
+							info.showAndWait();
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		});

@@ -1,0 +1,22 @@
+#pane-cadastro-horario {
+	-fx-background-image : url('file:resources/img/bg-principal.jpg');
+}
+
+#label-titulo {
+	-fx-text-fill : white;
+	-fx-background-color : #FD3395;
+	-fx-font-size: 20;
+	-fx-min-height : 50;
+	-fx-border-radius : 4;
+	-fx-min-width: 250;
+	-fx-alignment : center;
+}
+
+#label-dias-semana {
+	-fx-font-size : 14;
+	-fx-background-color : #FD3395;
+	-fx-text-fill : white;
+	-fx-min-width : 120;
+	-fx-min-height : 20;
+	-fx-alignment : center;
+}

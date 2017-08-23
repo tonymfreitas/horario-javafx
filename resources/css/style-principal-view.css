@@ -1,0 +1,38 @@
+#pane-principal {
+    -fx-background-image : url('file:resources/img/bg-principal.jpg');
+}
+
+#header {
+	-fx-background-color : red;
+}
+
+#botao-horarios {
+	-fx-background-color : #23B2DC;
+	-fx-text-fill : white;
+	-fx-min-width : 300;
+	-fx-min-height : 100;
+	-fx-font-size : 30;
+}
+
+#botao-cadastrar {
+	-fx-background-color : #5FBA7E;
+	-fx-text-fill : white;
+	-fx-min-width : 300;
+	-fx-min-height : 100;
+	-fx-font-size : 30;
+}
+
+#label-usuario {
+	-fx-background-color : #996383;
+	-fx-text-fill : white;
+	-fx-min-width : 130;
+	-fx-min-height : 40;
+	-fx-alignment : center;
+}
+
+#botao-voltar {
+	-fx-background-color : #1BBC9B;
+	-fx-text-fill : white;
+	-fx-font-size : 15;
+	-fx-min-width: 70;
+}

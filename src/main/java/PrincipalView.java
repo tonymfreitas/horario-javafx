@@ -20,7 +20,7 @@ import main.java.utils.SessionController;
 public class PrincipalView extends Application {
 
 	private AnchorPane pane;
-	private Button btHorarios, btCadastrar, btVoltar, btNovaMateria;
+	private Button btHorarios, btCadastrar, btVoltar;
 	private Label lbUsuario;
 	private Stage stage;
 	
@@ -45,19 +45,16 @@ public class PrincipalView extends Application {
 		pane.setPrefSize(800, 600);
 		btHorarios = new Button("HORÁRIOS");
 		btCadastrar = new Button("NOVO HORÁRIO");
-		btNovaMateria = new Button("NOVA MATÉRIA");
 		lbUsuario = new Label("BEM VINDO " + SessionController.getUsuario().getUsuario().toUpperCase());
 		btVoltar = new Button("Sair");
-		pane.getChildren().addAll(btHorarios, btCadastrar, lbUsuario, btVoltar, btNovaMateria);
+		pane.getChildren().addAll(btHorarios, btCadastrar, lbUsuario, btVoltar);
 	}
 	
 	private void iniciarLayoutComponentes() {
 		btHorarios.setLayoutX((pane.getWidth() - btHorarios.getWidth())/2);
 		btHorarios.setLayoutY(100);
 		btCadastrar.setLayoutX((pane.getWidth() - btCadastrar.getWidth())/2);
-		btCadastrar.setLayoutY(200);
-		btNovaMateria.setLayoutX((pane.getWidth() - btNovaMateria.getWidth())/2);
-		btNovaMateria.setLayoutY(300);
+		btCadastrar.setLayoutY(250);
 		lbUsuario.setLayoutX(20);
 		lbUsuario.setLayoutY(20);
 		btVoltar.setLayoutX((pane.getWidth() - btVoltar.getWidth() - 20));
@@ -71,7 +68,6 @@ public class PrincipalView extends Application {
 		btCadastrar.setId("botao-cadastrar");
 		lbUsuario.setId("label-usuario");
 		btVoltar.setId("botao-voltar");
-		btNovaMateria.setId("botao-");
 	}
 	
 	private void deslogar() {
@@ -109,7 +105,6 @@ public class PrincipalView extends Application {
 				}
 			}
 		});
-		
 	}
 	
 }

@@ -52,8 +52,10 @@ public class UsuarioView extends Application {
 		pane.setPrefSize(800, 600);
 		txLogin = new TextField();
 		txLogin.setPromptText("Insira aqui seu login...");
+		txLogin.setText("tony");
 		txSenha = new TextField();
 		txSenha.setPromptText("Insira aqui sua senha...");
+		txSenha.setText("1");
 		btEntrar = new Button("Entrar");
 		btSair = new Button("Sair");
 		lbCadastrar = new Label("Cadastre-se");

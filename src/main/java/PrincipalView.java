@@ -7,15 +7,17 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import main.java.horario.CadastroHorarioView;
+import main.java.horario.HorariosView;
 import main.java.usuario.UsuarioView;
 import main.java.utils.SessionController;
+import main.java.utils.alert.AlertUsuario;
 
 public class PrincipalView extends Application {
 
@@ -97,11 +99,22 @@ public class PrincipalView extends Application {
 
 			@Override
 			public void handle(ActionEvent event) {
-				Alert sair = new Alert(AlertType.CONFIRMATION);
-				sair.setContentText("Deseja relamente sair ?");
+				Alert sair = new AlertUsuario().confirmation("Fechar horário acadêmcido", "Deseja realmente sair?");
 				Optional<ButtonType> saindo = sair.showAndWait();
-				if(saindo.get() == ButtonType.OK) {
+				if(saindo.get().getButtonData() == ButtonData.YES) {
 					deslogar();
+				}
+			}
+		});
+		
+		btHorarios.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				try {
+					new HorariosView().start(stage);
+				} catch (Exception e) {
+ 					e.printStackTrace();
 				}
 			}
 		});

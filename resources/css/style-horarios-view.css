@@ -1,0 +1,19 @@
+#pane-horarios {
+	-fx-background-image : url('file:resources/img/bg-principal.jpg');
+}
+
+#botao-voltar {
+	-fx-background-color : #1BBC9B;
+	-fx-text-fill : white;
+	-fx-font-size : 15;
+	-fx-min-width: 70;
+}
+
+#label-titulo-view {
+	-fx-text-fill : white;
+	-fx-min-width : 400;
+	-fx-min-heigth : 70;
+	-fx-alignment: center;
+	-fx-font-size : 20;
+	-fx-background-color : #F42B7B;
+}

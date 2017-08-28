@@ -9,6 +9,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -37,6 +38,7 @@ public class UsuarioView extends Application {
 
 		Scene cena = new Scene(pane);
 		primaryStage.setScene(cena);
+		primaryStage.getIcons().add(new Image("file:resources/img/horario-icon.png"));
 		primaryStage.setTitle("Horário acadêmico - Login");
 		primaryStage.setResizable(false);
 		primaryStage.show();

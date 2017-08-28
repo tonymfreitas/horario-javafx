@@ -2,22 +2,28 @@ package main.java.utils;
 
 public enum DiasSemana {
 
-	DOMINGO(0),
-	SEGUNDA(1),
-	TERÇA(2),
-	QUARTA(3),
-	QUINTA(4),
-	SEXTA(5),
-	SABADO(6);
+	DOMINGO(0, "DOMINGO"),
+	SEGUNDA(1, "SEGUNDA-FEIRA"),
+	TERÇA(2, "TERÇA-FEIRA"),
+	QUARTA(3, "QUARTA-FEIRA"),
+	QUINTA(4, "QUINTA-FEIRA"),
+	SEXTA(5, "SEXTA-FEIRA"),
+	SABADO(6, "SABADO");
 	
 	private final int dia;
+	private final String descricao;
 	
-	DiasSemana(int diaDaSemana) {
+	DiasSemana(int diaDaSemana, String descricao) {
 		this.dia = diaDaSemana;
+		this.descricao = descricao;
 	}
 	
 	public int getDia() {
 		return dia;
+	}
+	
+	public String getDescricao() {
+		return descricao;
 	}
 	
 }

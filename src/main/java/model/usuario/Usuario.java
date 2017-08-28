@@ -6,6 +6,12 @@ public class Usuario {
 	private String senha;
 	private String id;
 	
+	public Usuario() {}
+	
+	public Usuario(String id) {
+		this.id = id;
+	}
+	
 	public Usuario(String usuario, String senha) {
 		this.senha = senha;
 		this.usuario = usuario;

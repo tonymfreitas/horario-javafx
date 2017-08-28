@@ -12,7 +12,8 @@
 	-fx-alignment : center;
 }
 
-#label-dias-semana {
+
+.label-titulo-view {
 	-fx-font-size : 14;
 	-fx-background-color : #FD3395;
 	-fx-text-fill : white;
@@ -33,14 +34,6 @@
 	-fx-min-width : 150;
 	-fx-min-height : 40;
 	-fx-font-size : 15;
-}
-
-#label-materias {
-	-fx-font-size : 14;
-	-fx-background-color : #FD3395;
-	-fx-text-fill : white;
-	-fx-min-height : 20;
-	-fx-alignment : center;
 }
 
 #botao-cadastrar {

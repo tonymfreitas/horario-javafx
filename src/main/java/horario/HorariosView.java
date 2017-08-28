@@ -2,6 +2,7 @@ package main.java.horario;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -11,19 +12,24 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import main.java.PrincipalView;
+import main.java.model.horario.Horario;
 import main.java.model.horario.HorarioController;
 import main.java.model.horario.HorariosTableProperty;
 import main.java.model.usuario.Usuario;
 import main.java.utils.Periodos;
 import main.java.utils.SessionController;
+import main.java.utils.alert.AlertUsuario;
 
 public class HorariosView extends Application {
 
@@ -32,6 +38,7 @@ public class HorariosView extends Application {
 	private TableView<HorariosTableProperty> tbHorarios;
 	private TableColumn<HorariosTableProperty, String> periodo;
 	private TableColumn<HorariosTableProperty, Integer> qntMaterias;
+	private TableColumn<HorariosTableProperty, Button> btExcluir;
 	private ObservableList<HorariosTableProperty> itensHorarios;
 	private Label lbTituloView;
 	private Stage stage;
@@ -71,6 +78,24 @@ public class HorariosView extends Application {
 		return periodoRetorno;
 	}
 	
+	private void excluirHorario(Horario horario) {
+		Alert excluirAlert = AlertUsuario.confirmation("Exclusão horário", "Deseja excluir o horário do " + horario.getPeriodo() + " periodo ?");
+		Optional<ButtonType> excluir = excluirAlert.showAndWait();
+		if(excluir.get().getButtonData() == ButtonData.YES) {
+			HorarioController horarioCtrl = new HorarioController();
+		}
+	}
+	
+	private void addListenerBotaoExcluir(Button btExcluir, HashMap horario) {
+		btExcluir.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				//excluirHorario(horario);
+			}
+		});
+	}
+	
 	private void listarHorariosCadastrados() {
 		
 		HorarioController horarioCtrl = new HorarioController();
@@ -88,7 +113,9 @@ public class HorariosView extends Application {
 				String periodo = verificarPeriodo(Integer.parseInt(periodoRetornado));
 				int quantidadeMaterias = Integer.parseInt(quantidadeRetornado);
 				String idhorario = (String) horario.get("idhorario");
-				HorariosTableProperty horariosProperty = new HorariosTableProperty(periodo, quantidadeMaterias);
+				Button btExcluir = new Button("Excluir");
+				addListenerBotaoExcluir(btExcluir, horario);
+				HorariosTableProperty horariosProperty = new HorariosTableProperty(periodo, quantidadeMaterias, btExcluir);
 				horariosProperty.setIdHorario(idhorario);
 				itensHorarios.add(horariosProperty);
 			}
@@ -105,10 +132,12 @@ public class HorariosView extends Application {
 		tbHorarios = new TableView<HorariosTableProperty>();
 		periodo = new TableColumn<HorariosTableProperty, String>("Período");
 		qntMaterias = new TableColumn<HorariosTableProperty, Integer>("Quantidade de matérias");
+		btExcluir = new TableColumn<HorariosTableProperty, Button>("Excluir");
 		periodo.setCellValueFactory(new PropertyValueFactory<HorariosTableProperty, String>("periodo"));
 		qntMaterias.setCellValueFactory(new PropertyValueFactory<HorariosTableProperty, Integer>("quantidadeMaterias"));
-	
-		tbHorarios.getColumns().addAll(periodo, qntMaterias);
+		btExcluir.setCellValueFactory(new PropertyValueFactory<>("btExcluir"));
+		
+		tbHorarios.getColumns().addAll(periodo, qntMaterias, btExcluir);
 		tbHorarios.setItems(itensHorarios);
 		
 		pane.getChildren().addAll(lbTituloView, btVoltar, tbHorarios);

@@ -1,0 +1,28 @@
+#pane-materias {
+	-fx-background-image : url('file:resources/img/bg-principal.jpg');
+}
+
+
+#botao-voltar {
+	-fx-background-color : #1BBC9B;
+	-fx-text-fill : white;
+	-fx-font-size : 15;
+	-fx-min-width: 70;
+}
+
+#label-titulo-view {
+	-fx-background-color : #df81ec;
+	-fx-text-fill : white;
+	-fx-font-size : 20;
+	-fx-min-width : 200;
+	-fx-min-height : 50;
+	-fx-alignment : center;
+}
+
+#botao-nova-materia {
+	-fx-background-color : #996383;
+	-fx-text-fill : white;
+	-fx-min-width : 150;
+	-fx-min-height : 40;
+	-fx-font-size : 15;
+}

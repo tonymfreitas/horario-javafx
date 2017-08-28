@@ -33,4 +33,12 @@ public class MateriaController {
 		return materiaDao.marcarAulaConcluida(materia);
 	}
 	
+	public boolean excluirMateria(Materia materia) {
+		return materiaDao.excluirMateria(materia);
+	}
+	
+	public boolean editarMateria(Materia materia) {
+		return materiaDao.editarMateria(materia);
+	}
+	
 }

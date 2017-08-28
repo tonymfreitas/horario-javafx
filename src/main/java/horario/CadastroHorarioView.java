@@ -19,7 +19,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import main.java.PrincipalView;
-import main.java.materia.CadastroMateriaView;
 import main.java.model.horario.Horario;
 import main.java.model.horario.HorarioController;
 import main.java.model.materia.Materia;
@@ -41,7 +40,7 @@ public class CadastroHorarioView extends Application {
 	private ObservableList<DiasSemana> itens;
 	private ObservableList<Materia> itensMateria;
 	private ObservableList<Periodos> itensPeriodos;
-	private Button btVoltar, btNovaMateria, btCadastrar;
+	private Button btVoltar, btCadastrar;
 
 	public Materia materiaSelecionada = null;
 	public DiasSemana diaSelecionado = null;
@@ -94,11 +93,10 @@ public class CadastroHorarioView extends Application {
 		lbDiasSemana = new Label("Dias da semana");
 		lbPeriodo = new Label("Período semestral");
 		btVoltar = new Button("Voltar");
-		btNovaMateria = new Button("Nova matéria");
 		lbListaMaterias = new Label("Matérias");
 
 		btCadastrar = new Button("Cadastrar");
-		pane.getChildren().addAll(lbTituloView, btCadastrar, listaDiasSemana, lbDiasSemana, btVoltar, btNovaMateria,
+		pane.getChildren().addAll(lbTituloView, btCadastrar, listaDiasSemana, lbDiasSemana, btVoltar,
 				listaMaterias, lbListaMaterias, listaPeriodos, lbPeriodo);
 	}
 
@@ -129,8 +127,6 @@ public class CadastroHorarioView extends Application {
 		lbPeriodo.setPrefWidth(listaPeriodos.getWidth());
 
 		btVoltar.setLayoutX((pane.getWidth() - btVoltar.getWidth() - 20));
-		btNovaMateria.setLayoutX(20);
-		btNovaMateria.setLayoutY(20);
 		btVoltar.setLayoutY(20);
 		btCadastrar.setLayoutX((pane.getWidth() - btCadastrar.getWidth()) / 2);
 		btCadastrar.setLayoutY(400);
@@ -141,7 +137,6 @@ public class CadastroHorarioView extends Application {
 		pane.setId("pane-cadastro-horario");
 		lbTituloView.setId("label-titulo");
 		btVoltar.setId("botao-voltar");
-		btNovaMateria.setId("botao-nova-materia");
 		btCadastrar.setId("botao-cadastrar");
 		lbListaMaterias.getStyleClass().add("label-titulo-view");
 		lbDiasSemana.getStyleClass().add("label-titulo-view");
@@ -203,17 +198,7 @@ public class CadastroHorarioView extends Application {
 			}
 		});
 
-		btNovaMateria.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent event) {
-				try {
-					new CadastroMateriaView().start(stage);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	
 
 		listaMaterias.setCellFactory(new Callback<ListView<Materia>, ListCell<Materia>>() {
 

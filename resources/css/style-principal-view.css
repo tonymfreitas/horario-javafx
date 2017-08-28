@@ -36,3 +36,11 @@
 	-fx-font-size : 15;
 	-fx-min-width: 70;
 }
+
+#botao-materias {
+	-fx-background-color : #e965af;
+	-fx-text-fill : white;
+	-fx-min-width : 300;
+	-fx-min-height : 100;
+	-fx-font-size : 30;
+}

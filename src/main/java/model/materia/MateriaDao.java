@@ -31,6 +31,43 @@ public class MateriaDao {
 		}
 		return resultado == 1 ? true : false;
 	}
+	
+	public boolean excluirMateria(Materia materia) {
+		Connection conn = new ConnectionFactory().obterConexao();
+		int resultado = 0;
+		String sql = "delete from materia where id = ?::uuid and idusuario = ?::uuid";
+
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, materia.getId());
+			pstmt.setString(2, materia.getUsuario().getId());
+			resultado = pstmt.executeUpdate();
+			conn.close();
+			pstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultado == 1 ? true : false;
+	}
+	
+	public boolean editarMateria(Materia materia) {
+		Connection conn = new ConnectionFactory().obterConexao();
+		int resultado = 0;
+		String sql = "update materia set descricao = ? where id = ?::uuid and idusuario = ?::uuid";
+
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, materia.getDescricao());
+			pstmt.setString(2, materia.getId());
+			pstmt.setString(3, materia.getUsuario().getId());
+			resultado = pstmt.executeUpdate();
+			conn.close();
+			pstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultado == 1 ? true : false;
+	}
 
 	public Horario consultarMateria(Horario horario) {
 		Connection conn = new ConnectionFactory().obterConexao();

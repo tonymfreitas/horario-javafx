@@ -10,23 +10,23 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import main.java.horario.CadastroHorarioView;
 import main.java.model.materia.Materia;
 import main.java.model.materia.MateriaController;
-import main.java.model.usuario.Usuario;
 import main.java.utils.SessionController;
 import main.java.utils.alert.AlertUsuario;
 
-public class CadastroMateriaView extends Application {
+public class EditarMateriaView extends Application {
 
 	private AnchorPane pane;
 	private TextField txDescricao;
-	private Button btCadastrar, btVoltar;
+	private Button btEditar, btVoltar;
 	private Label lbDescricao, lbTituloView;
 	private Stage stage;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
+		Materia materia = (Materia) primaryStage.getUserData();
 		
 		iniciarComponentes();
 		iniciarEstiloNosComponentes();
@@ -35,30 +35,32 @@ public class CadastroMateriaView extends Application {
 		
 		Scene cena = new Scene(pane);
 		primaryStage.setScene(cena);
-		primaryStage.setTitle("Nova matéria");
+		primaryStage.setTitle("Editar matéria");
 		primaryStage.setResizable(false);
 		primaryStage.show();
 		stage = primaryStage;
 		
 		iniciarLayoutComponentes();
+		
+		txDescricao.setText(materia.getDescricao());
 	}
 
 	private void iniciarComponentes() {
 		pane = new AnchorPane();
 		pane.setPrefSize(800, 600);
 		txDescricao = new TextField();
-		btCadastrar = new Button("Cadastrar");
+		btEditar = new Button("Editar");
 		btVoltar = new Button("Voltar");
 		lbDescricao = new Label("Descrição");
-		lbTituloView = new Label("Cadastro de matéria");
-		pane.getChildren().addAll(txDescricao, btCadastrar, btVoltar, lbDescricao, lbTituloView);
+		lbTituloView = new Label("Editar matéria");
+		pane.getChildren().addAll(txDescricao, btEditar, btVoltar, lbDescricao, lbTituloView);
 	}
 	
 	private void iniciarLayoutComponentes() {
 		txDescricao.setLayoutX((pane.getWidth() - txDescricao.getWidth())/2);
 		txDescricao.setLayoutY(200);
-		btCadastrar.setLayoutX((pane.getWidth() - btCadastrar.getWidth())/2);
-		btCadastrar.setLayoutY(300);
+		btEditar.setLayoutX((pane.getWidth() - btEditar.getWidth())/2);
+		btEditar.setLayoutY(300);
 		btVoltar.setLayoutX((pane.getWidth() - btVoltar.getWidth()) - 20);
 		btVoltar.setLayoutY(20);
 		lbDescricao.setLayoutX((pane.getWidth() - txDescricao.getWidth())/2);
@@ -73,27 +75,35 @@ public class CadastroMateriaView extends Application {
 		btVoltar.setId("botao-voltar");
 		lbTituloView.setId("label-titulo");
 		txDescricao.setId("textfield-descricao");
-		btCadastrar.setId("botao-cadastrar");
+		btEditar.setId("botao-cadastrar");
 	}
 	
 	private boolean validarCampoVazio() {
 		boolean campoVazio = txDescricao.getText().isEmpty();
 		if(campoVazio) {
-			Alert info = AlertUsuario.info("Informação cadastro de matéria", "Campo descrição está vazio, o mesmo é obrigatório");
+			Alert info = AlertUsuario.info("Informação edição de matéria", "Campo descrição está vazio, o mesmo é obrigatório");
 			info.showAndWait();
 		}
 		return campoVazio ? false : true;
 	}
 	
-	private boolean cadastrarNovaMateria() {
-		MateriaController materiaCtrl = new MateriaController();
-		Materia materia = new Materia(txDescricao.getText());
-		Usuario usuario = SessionController.getUsuario();
-		materia.setUsuario(usuario);
-		return materiaCtrl.cadastrarNovaMateria(materia);
+	private boolean editarMateria(Materia materia) {
+		boolean editou = false;
+		if(validarCampoVazio()) {
+			MateriaController materiaCtrl = new MateriaController();
+			materia.setUsuario(SessionController.getUsuario());
+			materia.setDescricao(txDescricao.getText());
+			editou = materiaCtrl.editarMateria(materia);
+			if(editou) {
+				Alert success = AlertUsuario.success("Edição matéria", "Matéria editar com sucesso!");
+				success.showAndWait();
+			} else {
+				Alert erro = AlertUsuario.error("Edição matéria", "Falha na edição da matéria");
+				erro.showAndWait();
+			}
+		}
+		return editou;
 	}
-	
-
 	
 	private void setListeners() {
 		
@@ -109,20 +119,18 @@ public class CadastroMateriaView extends Application {
 			}
 		});
 		
-		btCadastrar.setOnAction(new EventHandler<ActionEvent>() {
+		
+		btEditar.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
-				if(validarCampoVazio()) {
-					if(cadastrarNovaMateria()) {
-						try {
-							new MateriasView().start(stage);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					} else {
-						Alert erro = AlertUsuario.error("Erro", "Falha ao cadastrar nova matéria");
-						erro.showAndWait();
+				Materia materia = (Materia) stage.getUserData();
+				boolean editouMateria = editarMateria(materia);
+				if(editouMateria) {
+					try {
+						new MateriasView().start(stage);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -132,3 +140,4 @@ public class CadastroMateriaView extends Application {
 	
 	
 }
+

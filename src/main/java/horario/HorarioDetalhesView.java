@@ -76,8 +76,9 @@ public class HorarioDetalhesView extends Application {
 		tbMaterias = new TableView<MateriaTableProperty>();
 		tbMaterias.setPrefWidth(500);
 		colunaMateria = new TableColumn<MateriaTableProperty, String>("Matéria");
+		colunaMateria.setPrefWidth(250);
 		colunaDia = new TableColumn<MateriaTableProperty, String>("Dia da semana");
-
+		colunaDia.setPrefWidth(250);
 		colunaMateria.setCellValueFactory(new PropertyValueFactory<MateriaTableProperty, String>("descricao"));
 		colunaDia.setCellValueFactory(new PropertyValueFactory<MateriaTableProperty, String>("dia"));
 		tbMaterias.getColumns().addAll(colunaMateria, colunaDia);

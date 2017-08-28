@@ -15,6 +15,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import main.java.horario.CadastroHorarioView;
 import main.java.horario.HorariosView;
+import main.java.materia.MateriasView;
 import main.java.usuario.UsuarioView;
 import main.java.utils.SessionController;
 import main.java.utils.alert.AlertUsuario;
@@ -22,7 +23,7 @@ import main.java.utils.alert.AlertUsuario;
 public class PrincipalView extends Application {
 
 	private AnchorPane pane;
-	private Button btHorarios, btCadastrar, btVoltar;
+	private Button btHorarios, btCadastrar, btVoltar, btMaterias;
 	private Label lbUsuario;
 	private Stage stage;
 	
@@ -47,16 +48,19 @@ public class PrincipalView extends Application {
 		pane.setPrefSize(800, 600);
 		btHorarios = new Button("HORÁRIOS");
 		btCadastrar = new Button("NOVO HORÁRIO");
+		btMaterias = new Button("MATÉRIAS");
 		lbUsuario = new Label("BEM VINDO " + SessionController.getUsuario().getUsuario().toUpperCase());
 		btVoltar = new Button("Sair");
-		pane.getChildren().addAll(btHorarios, btCadastrar, lbUsuario, btVoltar);
+		pane.getChildren().addAll(btHorarios, btCadastrar, lbUsuario, btVoltar, btMaterias);
 	}
 	
 	private void iniciarLayoutComponentes() {
 		btHorarios.setLayoutX((pane.getWidth() - btHorarios.getWidth())/2);
-		btHorarios.setLayoutY(100);
+		btHorarios.setLayoutY(80);
 		btCadastrar.setLayoutX((pane.getWidth() - btCadastrar.getWidth())/2);
-		btCadastrar.setLayoutY(250);
+		btCadastrar.setLayoutY(200);
+		btMaterias.setLayoutX((pane.getWidth() - btMaterias.getWidth())/2);
+		btMaterias.setLayoutY(320);
 		lbUsuario.setLayoutX(20);
 		lbUsuario.setLayoutY(20);
 		btVoltar.setLayoutX((pane.getWidth() - btVoltar.getWidth() - 20));
@@ -70,6 +74,7 @@ public class PrincipalView extends Application {
 		btCadastrar.setId("botao-cadastrar");
 		lbUsuario.setId("label-usuario");
 		btVoltar.setId("botao-voltar");
+		btMaterias.setId("botao-materias");
 	}
 	
 	private void deslogar() {
@@ -116,6 +121,18 @@ public class PrincipalView extends Application {
 				} catch (Exception e) {
  					e.printStackTrace();
 				}
+			}
+		});
+		
+		btMaterias.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				try {
+					new MateriasView().start(stage);
+				} catch (Exception e) {
+					e.printStackTrace();
+				};
 			}
 		});
 	}

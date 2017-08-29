@@ -1,11 +1,15 @@
 package main.java.horario;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import org.controlsfx.control.CheckListView;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -13,11 +17,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import main.java.PrincipalView;
 import main.java.model.horario.Horario;
 import main.java.model.horario.HorarioController;
@@ -33,12 +35,11 @@ public class CadastroHorarioView extends Application {
 
 	private AnchorPane pane;
 	private Stage stage;
-	private Label lbTituloView, lbPeriodo, lbDiasSemana, lbListaMaterias;
-	private ListView<DiasSemana> listaDiasSemana;
-	private ListView<Materia> listaMaterias;
+	private Label lbTituloView, lbPeriodo, lbListaMaterias;
+	private CheckListView<String> listaMaterias;
 	private ListView<Periodos> listaPeriodos;
-	private ObservableList<DiasSemana> itens;
-	private ObservableList<Materia> itensMateria;
+	private List<String> diasSemana = new ArrayList<>();
+	private ObservableList<String> itensMateria;
 	private ObservableList<Periodos> itensPeriodos;
 	private Button btVoltar, btCadastrar;
 
@@ -68,35 +69,55 @@ public class CadastroHorarioView extends Application {
 	private void listarMaterias() {
 		MateriaController materiaCtrl = new MateriaController();
 		ArrayList<Materia> materias = (ArrayList<Materia>) materiaCtrl.listarMaterias(SessionController.getUsuario());
-		itensMateria = FXCollections.observableArrayList(materias);
+		itensMateria = FXCollections.observableArrayList();
+		for(Materia materia : materias) {
+			itensMateria.add(materia.getDescricao());
+		}
 	}
 
+	private void listarDiasSemana() {
+		diasSemana = new ArrayList<>();
+		diasSemana.add(DiasSemana.DOMINGO.getDescricao());
+		diasSemana.add(DiasSemana.SEGUNDA.getDescricao());
+		diasSemana.add(DiasSemana.TERÇA.getDescricao());
+		diasSemana.add(DiasSemana.QUARTA.getDescricao());
+		diasSemana.add(DiasSemana.QUINTA.getDescricao());
+		diasSemana.add(DiasSemana.SEXTA.getDescricao());
+		diasSemana.add(DiasSemana.SABADO.getDescricao());
+	}
+	
+	private void listarPeriodos() {
+		itensPeriodos = FXCollections.observableArrayList(
+				Periodos.PRIMEIRO, 
+				Periodos.SEGUNDO, 
+				Periodos.TERCEIRO,
+				Periodos.QUARTO, 
+				Periodos.QUINTO, 
+				Periodos.SEXTO, 
+				Periodos.SÉTIMO, 
+				Periodos.OITAVO);
+	}
+	
 	private void iniciarComponentes() {
 		pane = new AnchorPane();
 		pane.setPrefSize(800, 600);
 
-		listaDiasSemana = new ListView<DiasSemana>();
 		listaPeriodos = new ListView<Periodos>();
-		listaMaterias = new ListView<Materia>();
-		itens = FXCollections.observableArrayList(DiasSemana.DOMINGO, DiasSemana.SEGUNDA, DiasSemana.TERÇA,
-				DiasSemana.QUARTA, DiasSemana.QUINTA, DiasSemana.SEXTA, DiasSemana.SABADO);
-		itensPeriodos = FXCollections.observableArrayList(Periodos.PRIMEIRO, Periodos.SEGUNDO, Periodos.TERCEIRO,
-				Periodos.QUARTO, Periodos.QUINTO, Periodos.SEXTO, Periodos.SÉTIMO, Periodos.OITAVO);
-		listaDiasSemana.setItems(itens);
+		listaMaterias = new CheckListView<String>();
+		listarDiasSemana();
+		listarPeriodos();
 		listaMaterias.setItems(itensMateria);
 		listaPeriodos.setItems(itensPeriodos);
-		listaDiasSemana.setPrefSize(150, 100);
 		listaPeriodos.setPrefSize(150, 100);
-		listaMaterias.setPrefSize(250, 100);
+		listaMaterias.setPrefSize(300, 100);
 
 		lbTituloView = new Label("Cadastro de horários");
-		lbDiasSemana = new Label("Dias da semana");
 		lbPeriodo = new Label("Período semestral");
 		btVoltar = new Button("Voltar");
 		lbListaMaterias = new Label("Matérias");
 
 		btCadastrar = new Button("Cadastrar");
-		pane.getChildren().addAll(lbTituloView, btCadastrar, listaDiasSemana, lbDiasSemana, btVoltar,
+		pane.getChildren().addAll(lbTituloView, btCadastrar, btVoltar,
 				listaMaterias, lbListaMaterias, listaPeriodos, lbPeriodo);
 	}
 
@@ -105,22 +126,14 @@ public class CadastroHorarioView extends Application {
 		lbTituloView.setLayoutX((pane.getWidth() - lbTituloView.getWidth()) / 2);
 		lbTituloView.setLayoutY(100);
 
-		listaDiasSemana
-				.setLayoutX(((pane.getWidth() - listaDiasSemana.getWidth()) / 2) - ((listaDiasSemana.getWidth()) + 20));
-		listaDiasSemana.setLayoutY(250);
-		lbDiasSemana
-				.setLayoutX(((pane.getWidth() - listaDiasSemana.getWidth()) / 2) - ((listaDiasSemana.getWidth()) + 20));
-		lbDiasSemana.setLayoutY(220);
-		lbDiasSemana.setPrefWidth(listaDiasSemana.getWidth());
-
-		listaMaterias.setLayoutX(((pane.getWidth() - listaMaterias.getWidth()) / 2) + (listaMaterias.getWidth()) - 20);
+		listaMaterias.setLayoutX(((pane.getWidth() - listaMaterias.getWidth()) / 2) + listaPeriodos.getWidth());
 		listaMaterias.setLayoutY(250);
 		lbListaMaterias
-				.setLayoutX(((pane.getWidth() - listaMaterias.getWidth()) / 2) + (listaMaterias.getWidth()) - 20);
+				.setLayoutX(listaMaterias.getLayoutX());
 		lbListaMaterias.setLayoutY(220);
 		lbListaMaterias.setPrefWidth(listaMaterias.getWidth());
 
-		listaPeriodos.setLayoutX(((pane.getWidth() - listaPeriodos.getWidth()) / 2));
+		listaPeriodos.setLayoutX(((pane.getWidth() - listaPeriodos.getWidth()) / 2) - listaPeriodos.getWidth());
 		listaPeriodos.setLayoutY(250);
 		lbPeriodo.setLayoutX(listaPeriodos.getLayoutX());
 		lbPeriodo.setLayoutY(220);
@@ -139,7 +152,6 @@ public class CadastroHorarioView extends Application {
 		btVoltar.setId("botao-voltar");
 		btCadastrar.setId("botao-cadastrar");
 		lbListaMaterias.getStyleClass().add("label-titulo-view");
-		lbDiasSemana.getStyleClass().add("label-titulo-view");
 		lbPeriodo.getStyleClass().add("label-titulo-view");
 	}
 
@@ -185,6 +197,14 @@ public class CadastroHorarioView extends Application {
 
 	private void setListeners() {
 
+		listaMaterias.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
+
+			@Override
+			public void onChanged(javafx.collections.ListChangeListener.Change<? extends String> c) {
+				
+			}
+		});
+		
 		btVoltar.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -200,41 +220,32 @@ public class CadastroHorarioView extends Application {
 
 	
 
-		listaMaterias.setCellFactory(new Callback<ListView<Materia>, ListCell<Materia>>() {
+//		listaMaterias.setCellFactory(new Callback<ListView<Materia>, ListCell<Materia>>() {
+//
+//			@Override
+//			public ListCell<Materia> call(ListView<Materia> param) {
+//				ListCell<Materia> cell = new ListCell<Materia>() {
+//
+//					@Override
+//					protected void updateItem(Materia materia, boolean bln) {
+//						super.updateItem(materia, bln);
+//						if (materia != null) {
+//							setText(materia.getDescricao());
+//						}
+//					}
+//				};
+//				return cell;
+//			}
+//		});
 
-			@Override
-			public ListCell<Materia> call(ListView<Materia> param) {
-				ListCell<Materia> cell = new ListCell<Materia>() {
-
-					@Override
-					protected void updateItem(Materia materia, boolean bln) {
-						super.updateItem(materia, bln);
-						if (materia != null) {
-							setText(materia.getDescricao());
-						}
-					}
-				};
-				return cell;
-			}
-		});
-
-		listaDiasSemana.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<DiasSemana>() {
-
-			@Override
-			public void changed(ObservableValue<? extends DiasSemana> observable, DiasSemana oldValue,
-					DiasSemana newValue) {
-				diaSelecionado = newValue;
-			}
-		});
-
-		listaMaterias.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Materia>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Materia> observable, Materia oldValue, Materia newValue) {
-				materiaSelecionada = newValue;
-				materiaSelecionada.criarDezAulas();
-			}
-		});
+//		listaMaterias.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Materia>() {
+//
+//			@Override
+//			public void changed(ObservableValue<? extends Materia> observable, Materia oldValue, Materia newValue) {
+//				materiaSelecionada = newValue;
+//				materiaSelecionada.criarDezAulas();
+//			}
+//		});
 		
 		listaPeriodos.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Periodos>() {
 

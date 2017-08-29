@@ -1,7 +1,9 @@
 package main.java.horario;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.controlsfx.control.CheckListView;
 
@@ -16,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
@@ -43,9 +46,9 @@ public class CadastroHorarioView extends Application {
 	private ObservableList<Periodos> itensPeriodos;
 	private Button btVoltar, btCadastrar;
 
-	public Materia materiaSelecionada = null;
-	public DiasSemana diaSelecionado = null;
 	public Periodos periodoSelecionado = null;
+	
+	ArrayList<HashMap> materiasAdicionadas = new ArrayList<>();
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -156,17 +159,14 @@ public class CadastroHorarioView extends Application {
 	}
 
 	private boolean validarCamposVazios() {
-		if (diaSelecionado == null) {
-			Alert info = AlertUsuario.info("Informação cadastro horário", "Dia não selecionado");
-			info.showAndWait();
-		} else if (materiaSelecionada == null) {
-			Alert info = AlertUsuario.info("Informação cadastro horário", "Matéria não selecionado");
+		if (materiasAdicionadas.size() == 0) {
+			Alert info = AlertUsuario.info("Informação cadastro horário", "Dia ou matéria não selecionado");
 			info.showAndWait();
 		} else if (periodoSelecionado == null) {
 			Alert info = AlertUsuario.info("Informação cadastro horário", "Período semestral não selecionado");
 			info.showAndWait();
 		}
-		return diaSelecionado == null || materiaSelecionada == null || periodoSelecionado == null ? false : true;
+		return materiasAdicionadas.size() == 0 || periodoSelecionado == null ? false : true;
 	}
 
 	private boolean cadastrarHorario() {
@@ -195,13 +195,29 @@ public class CadastroHorarioView extends Application {
 		return horarioCtrl.consultarHorarioCadastro(horario);
 	}
 
+	private void listarDiasDaSemana() {
+		ChoiceDialog<String> dialog = new ChoiceDialog<>(diasSemana.get(0), diasSemana);
+		
+		Optional<String> resultado = dialog.showAndWait();
+		
+		ObservableList<Integer> indices = listaMaterias.getCheckModel().getCheckedIndices();
+		int index = indices.size() - 1;
+		if(resultado.isPresent()) {
+			HashMap<String, String> materia = new HashMap<>();
+			materia.put("materia", listaMaterias.getCheckModel().getCheckedItems().get(index));
+			materia.put("dia", resultado.get());
+			materiasAdicionadas.add(materia);
+		} 	
+	
+	} 
+	
 	private void setListeners() {
-
+		
 		listaMaterias.getCheckModel().getCheckedItems().addListener(new ListChangeListener<String>() {
 
 			@Override
 			public void onChanged(javafx.collections.ListChangeListener.Change<? extends String> c) {
-				
+				listarDiasDaSemana();
 			}
 		});
 		

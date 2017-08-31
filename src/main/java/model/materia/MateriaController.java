@@ -17,8 +17,8 @@ public class MateriaController {
 		return materiaDao.listarMateriais(usuario);
 	}
 	
-	public boolean cadastrarAulaMateria(Horario horario) {
-		return materiaDao.cadastrarAulaMateria(horario);
+	public boolean cadastrarAulaMateria(Horario horario, Usuario usuario) {
+		return materiaDao.cadastrarAulaMateria(horario, usuario);
 	}
 	
 	public Materia listarAulasMateria(Horario horario) { 

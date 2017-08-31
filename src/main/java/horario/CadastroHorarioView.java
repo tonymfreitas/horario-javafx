@@ -8,6 +8,8 @@ import java.util.Optional;
 import org.controlsfx.control.CheckListView;
 
 import javafx.application.Application;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -29,6 +31,7 @@ import main.java.model.horario.HorarioController;
 import main.java.model.materia.Materia;
 import main.java.model.materia.MateriaController;
 import main.java.model.usuario.Usuario;
+import main.java.utils.DataUtils;
 import main.java.utils.DiasSemana;
 import main.java.utils.Periodos;
 import main.java.utils.SessionController;
@@ -45,6 +48,7 @@ public class CadastroHorarioView extends Application {
 	private ObservableList<String> itensMateria;
 	private ObservableList<Periodos> itensPeriodos;
 	private Button btVoltar, btCadastrar;
+	private boolean cadastroMateria;
 
 	public Periodos periodoSelecionado = null;
 	ArrayList<Materia> materiasListadas;
@@ -160,6 +164,7 @@ public class CadastroHorarioView extends Application {
 
 	private boolean validarCamposVazios() {
 		if (materiasAdicionadas.size() == 0) {
+			listaMaterias.getCheckModel().clearChecks();
 			Alert info = AlertUsuario.info("Informação cadastro horário", "Dia ou matéria não selecionado");
 			info.showAndWait();
 		} else if (periodoSelecionado == null) {
@@ -172,15 +177,19 @@ public class CadastroHorarioView extends Application {
 	private boolean verificarMateriaInvalida() {
 		boolean materiaInvalida = false;
 		ObservableList<String> materias = listaMaterias.getCheckModel().getCheckedItems();
-		for(HashMap materiaAdicionada : materiasAdicionadas) {
-			for(String materia : materias) {
-				System.out.println(materiaAdicionada);
-				System.out.println(materia);
-				if(!materiaAdicionada.get("materia").equals(materia)) {
+		DataUtils.converterDiaSemana(materias);
+		for(String materia : materias) {
+			for(HashMap materiaAdicionada : materiasAdicionadas) {
+				if(materia.equals(materiaAdicionada.get("materia"))) {
+					materiaInvalida = false;
+					break;
+				} else {
 					materiaInvalida = true;
-					Alert erro = AlertUsuario.error("Erro", "A matéria : " + materia + " não consta na lista de matérias adicionadas");
-					erro.showAndWait();
 				}
+			}
+			if(materiaInvalida) {
+				Alert erro = AlertUsuario.error("Erro", "Selecione um dia da seman para a matéria : " + materia);
+				erro.showAndWait();
 			}
 		}
 		
@@ -207,24 +216,23 @@ public class CadastroHorarioView extends Application {
 			setIdsMateria();
 			Horario horario = new Horario(materiasAdicionadas, periodoSelecionado.getPeriodo());
 			
-			if (!consultarHorarioCadastro(horario)) {
+			if (!consultarHorarioCadastro(horario, usuario)) {
 				cadastrouAula = horarioCtrl.cadastrarHorario(horario, usuario);
-				cadastrouHorario = materiaCtrl.cadastrarAulaMateria(horario);
+				cadastrouHorario = materiaCtrl.cadastrarAulaMateria(horario, usuario);
 			} else {
 				Alert info = AlertUsuario.info("Informação cadastro horário",
-						"Este horário já está cadastrado, tente outra combinação");
+						"Um horário ja foi cadastrado para o período selecionado");
 				info.showAndWait();
 			}
 		}
 		return cadastrouAula && cadastrouHorario;
 	}
 
-	private boolean consultarHorarioCadastro(Horario horario) {
+	private boolean consultarHorarioCadastro(Horario horario, Usuario usuario) {
 		HorarioController horarioCtrl = new HorarioController();
-		//return horarioCtrl.consultarHorarioCadastro(horario);
-		return false;
+		return horarioCtrl.consultarHorarioCadastro(horario, usuario);
 	}
-
+	
 	private void listarDiasDaSemana() {
 		ChoiceDialog<String> dialog = new ChoiceDialog<>(diasSemana.get(0), diasSemana);
 		
@@ -235,7 +243,8 @@ public class CadastroHorarioView extends Application {
 		if(resultado.isPresent()) {
 			HashMap<String, String> materia = new HashMap<>();
 			materia.put("materia", listaMaterias.getCheckModel().getCheckedItems().get(index));
-			materia.put("dia", resultado.get());
+			int dia = DataUtils.converterDiaSemana(resultado.get());
+			materia.put("dia", String.valueOf(dia));
 			materiasAdicionadas.add(materia);
 		} 		
 	} 
@@ -246,7 +255,21 @@ public class CadastroHorarioView extends Application {
 
 			@Override
 			public void onChanged(javafx.collections.ListChangeListener.Change<? extends String> c) {
-				listarDiasDaSemana();
+				if(c.next()) {
+					if(c.wasAdded()) {
+						listarDiasDaSemana();
+					} else if(c.wasRemoved()) {
+						
+					}
+				}
+			}
+		});
+		
+		listaMaterias.getCheckModel().getCheckedItems().addListener(new InvalidationListener() {
+			
+			@Override
+			public void invalidated(Observable observable) {
+				System.out.println("aaa");
 			}
 		});
 		

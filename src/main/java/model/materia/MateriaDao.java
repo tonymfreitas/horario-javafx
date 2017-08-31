@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import javafx.collections.ObservableList;
 import main.java.model.ConnectionFactory;
 import main.java.model.aula.Aula;
 import main.java.model.horario.Horario;
@@ -31,7 +33,7 @@ public class MateriaDao {
 		}
 		return resultado == 1 ? true : false;
 	}
-	
+
 	public boolean excluirMateria(Materia materia) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		int resultado = 0;
@@ -49,7 +51,7 @@ public class MateriaDao {
 		}
 		return resultado == 1 ? true : false;
 	}
-	
+
 	public boolean editarMateria(Materia materia) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		int resultado = 0;
@@ -69,45 +71,31 @@ public class MateriaDao {
 		return resultado == 1 ? true : false;
 	}
 
-	public Horario consultarMateria(Horario horario) {
+	public String consultarHorario(Horario horario, Usuario usuario) {
 		Connection conn = new ConnectionFactory().obterConexao();
-		Horario hr = new Horario();
-		String sql = "SELECT \r\n" + 
-				"	HORARIO.ID AS IDHORARIO,\r\n" + 
-				"	MATERIA.ID AS IDMATERIA,\r\n" + 
-				"	HORARIO.IDUSUARIO\r\n" + 
-				"FROM\r\n" + 
-				"	HORARIO INNER JOIN MATERIA ON HORARIO.IDMATERIA = MATERIA.ID\r\n" + 
-				"WHERE\r\n" + 
-				"	HORARIO.IDUSUARIO = ?::uuid\r\n" + 
-				"	AND MATERIA.DESCRICAO = ?";
+		String sql = "SELECT DISTINCT HORARIO.ID AS IDHORARIO " + ""
+				+ "FROM "
+				+ "HORARIO INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.PERIODO = MTP.PERIODO " 
+				+ "WHERE "
+				+ "MTP.PERIODO = ?::numeric "
+				+ "AND HORARIO.IDUSUARIO = ?::uuid";
+		String idhorario = "";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, horario.getUsuario().getId());
-			pstmt.setString(2, horario.getMateria().getDescricao());
+			pstmt.setInt(1, horario.getPeriodo());
+			pstmt.setString(2, usuario.getId());
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				Materia mt = new Materia();
-				Usuario usuario = new Usuario();
-				usuario.setId(rs.getString("idusuario"));
-				mt = new Materia();
-				mt.setId(rs.getString("idmateria"));
-				hr.setUsuario(usuario);
-				hr.setId(rs.getString("idhorario"));
-				hr.setMateria(mt);
+				idhorario = rs.getString("idhorario");
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 		}
 
-		return hr;
+		return idhorario;
 	}
 
-	public boolean cadastrarAulaMateria(Horario horario) {
-
-		Horario horarioConsultado = consultarMateria(horario);
-		horarioConsultado.getMateria().setAulas(horario.getMateria().getAulas());
-		
+	public boolean cadastrarAula(HashMap materia, Usuario usuario) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		int resultado = 0;
 		String sql = "insert into aula(aula1, aula2, aula3, aula4, aula5, aula6, aula7, aula8, aula9, aula10, idmateria, idusuario, idhorario) "
@@ -115,19 +103,19 @@ public class MateriaDao {
 
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setBoolean(1, horarioConsultado.getMateria().getAulas().get(0).getConcluido());
-			pstmt.setBoolean(2, horarioConsultado.getMateria().getAulas().get(1).getConcluido());
-			pstmt.setBoolean(3, horarioConsultado.getMateria().getAulas().get(2).getConcluido());
-			pstmt.setBoolean(4, horarioConsultado.getMateria().getAulas().get(3).getConcluido());
-			pstmt.setBoolean(5, horarioConsultado.getMateria().getAulas().get(4).getConcluido());
-			pstmt.setBoolean(6, horarioConsultado.getMateria().getAulas().get(5).getConcluido());
-			pstmt.setBoolean(7, horarioConsultado.getMateria().getAulas().get(6).getConcluido());
-			pstmt.setBoolean(8, horarioConsultado.getMateria().getAulas().get(7).getConcluido());
-			pstmt.setBoolean(9, horarioConsultado.getMateria().getAulas().get(8).getConcluido());
-			pstmt.setBoolean(10, horarioConsultado.getMateria().getAulas().get(9).getConcluido());
-			pstmt.setString(11, horarioConsultado.getMateria().getId());
-			pstmt.setString(12, horarioConsultado.getUsuario().getId());
-			pstmt.setString(13, horarioConsultado.getId());
+			pstmt.setBoolean(1, false);
+			pstmt.setBoolean(2, false);
+			pstmt.setBoolean(3, false);
+			pstmt.setBoolean(4, false);
+			pstmt.setBoolean(5, false);
+			pstmt.setBoolean(6, false);
+			pstmt.setBoolean(7, false);
+			pstmt.setBoolean(8, false);
+			pstmt.setBoolean(9, false);
+			pstmt.setBoolean(10, false);
+			pstmt.setString(11, (String) materia.get("idmateria"));
+			pstmt.setString(12, usuario.getId());
+			pstmt.setString(13, (String) materia.get("idhorario"));
 			resultado = pstmt.executeUpdate();
 			conn.close();
 			pstmt.close();
@@ -135,6 +123,20 @@ public class MateriaDao {
 			e.printStackTrace();
 		}
 		return resultado == 1 ? true : false;
+	}
+	
+	public boolean cadastrarAulaMateria(Horario horario, Usuario usuario) {
+
+		String idhorario = consultarHorario(horario, usuario);
+		boolean cadastrouAula = false;
+		
+		ArrayList<HashMap> materias = horario.getMaterias();
+		for(HashMap materia : materias) {
+			materia.put("idhorario", idhorario);
+			cadastrouAula = cadastrarAula(materia, usuario);
+		}
+		
+		return cadastrouAula;
 	}
 
 	public List<Materia> listarMateriais(Usuario usuario) {
@@ -203,22 +205,10 @@ public class MateriaDao {
 	public boolean marcarAulaConcluida(Materia materia) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		int resultado = 0;
-		String sql = "UPDATE \r\n" + 
-				"	AULA\r\n" + 
-				"SET\r\n" + 
-				"	AULA1 = ?,\r\n" + 
-				"	AULA2 = ?,\r\n" + 
-				"	AULA3 = ?,\r\n" + 
-				"	AULA4 = ?,\r\n" + 
-				"	AULA5 = ?,\r\n" + 
-				"	AULA6 = ?,\r\n" + 
-				"	AULA7 = ?,\r\n" + 
-				"	AULA8 = ?,\r\n" + 
-				"	AULA9 = ?,\r\n" + 
-				"	AULA10 = ?\r\n" + 
-				"WHERE\r\n" + 
-				"	IDUSUARIO = ?::uuid\r\n" + 
-				"	AND ID = ?::uuid";
+		String sql = "UPDATE \r\n" + "	AULA\r\n" + "SET\r\n" + "	AULA1 = ?,\r\n" + "	AULA2 = ?,\r\n"
+				+ "	AULA3 = ?,\r\n" + "	AULA4 = ?,\r\n" + "	AULA5 = ?,\r\n" + "	AULA6 = ?,\r\n" + "	AULA7 = ?,\r\n"
+				+ "	AULA8 = ?,\r\n" + "	AULA9 = ?,\r\n" + "	AULA10 = ?\r\n" + "WHERE\r\n" + "	IDUSUARIO = ?::uuid\r\n"
+				+ "	AND ID = ?::uuid";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setBoolean(1, materia.getAulas().get(0).getConcluido());

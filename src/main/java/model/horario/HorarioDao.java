@@ -67,26 +67,23 @@ public class HorarioDao {
 		return resultado == 1 ? true : false;
 	}
 
-//	public boolean consultarHorarioCadastro(Horario horario) {
-//
-//		Connection conn = new ConnectionFactory().obterConexao();
-//		String sql = "select * from horario where idmateria = ?::uuid and idusuario = ?::uuid and dia = ? and periodo = ?";
-//		boolean horarioEncontrado = false;
-//		try {
-//			PreparedStatement pstmt = conn.prepareStatement(sql);
-//			pstmt.setString(1, horario.getMateria().getId());
-//			pstmt.setString(2, horario.getUsuario().getId());
-//			pstmt.setInt(3, horario.getDia());
-//			pstmt.setInt(4, horario.getPeriodo());
-//			ResultSet rs = pstmt.executeQuery();
-//			horarioEncontrado = rs.next();
-//			System.out.println(horarioEncontrado+"");
-//		} catch (SQLException e1) {
-//			e1.printStackTrace();
-//		}
-//
-//		return horarioEncontrado;
-//	}
+	public boolean consultarHorarioCadastro(Horario horario, Usuario usuario) {
+
+		Connection conn = new ConnectionFactory().obterConexao();
+		String sql = "select * from horario where periodo = ? and idusuario = ?::uuid";
+		boolean horarioEncontrado = false;
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, horario.getPeriodo());
+			pstmt.setString(2, usuario.getId());
+			ResultSet rs = pstmt.executeQuery();
+			horarioEncontrado = rs.next();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+
+		return horarioEncontrado;
+	}
 
 	public List<HashMap> consultarHorariosCadastros(Usuario usuario) {
 
@@ -94,11 +91,11 @@ public class HorarioDao {
 		String sql = "SELECT DISTINCT\r\n" + 
 				"	HORARIO.PERIODO,\r\n" +
 				"	HORARIO.ID AS IDHORARIO,\r\n" +
-				"	COUNT(DESCRICAO) AS QNTMATERIAS\r\n" + 
+				"	COUNT(MTP.ID) AS QNTMATERIAS\r\n" + 
 				"FROM \r\n" + 
 				"	HORARIO\r\n" + 
-				"		INNER JOIN MATERIA ON HORARIO.IDMATERIA = MATERIA.ID\r\n" + 
-				"		INNER JOIN USUARIO ON MATERIA.IDUSUARIO = USUARIO.ID\r\n" + 
+				"		INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.PERIODO = MTP.PERIODO\r\n" + 
+				"		INNER JOIN USUARIO ON HORARIO.IDUSUARIO = USUARIO.ID\r\n" + 
 				"WHERE\r\n" + 
 				"	USUARIO.ID = ?::uuid\r\n" + 
 				"GROUP BY\r\n" + 
@@ -129,11 +126,12 @@ public class HorarioDao {
 		Connection conn = new ConnectionFactory().obterConexao();
 		String sql = "SELECT\r\n" + 
 				"	HORARIO.ID AS IDHORARIO,\r\n" + 
-				"	HORARIO.DIA,\r\n" + 
-				"	HORARIO.IDMATERIA,\r\n" + 
+				"	MTP.DIA,\r\n" + 
+				"	MTP.IDMATERIA,\r\n" + 
 				"	MATERIA.DESCRICAO\r\n" + 
 				"FROM\r\n" + 
-				"	HORARIO INNER JOIN MATERIA ON HORARIO.IDMATERIA = MATERIA.ID\r\n" + 
+				"	HORARIO INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.PERIODO = MTP.PERIODO\r\n" + 
+				"	INNER JOIN MATERIA ON MTP.IDMATERIA = MATERIA.ID\r\n" +
 				"WHERE\r\n" + 
 				"	HORARIO.PERIODO = ?::numeric\r\n" + 
 				"	AND HORARIO.IDUSUARIO = ?::uuid";

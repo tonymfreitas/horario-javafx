@@ -13,9 +13,9 @@ public class HorarioController {
 		return horarioDao.cadastrarHorario(horario, usuario);
 	}
 	
-//	public boolean consultarHorarioCadastro(Horario horario) {
-//		return horarioDao.consultarHorarioCadastro(horario);
-//	}
+	public boolean consultarHorarioCadastro(Horario horario, Usuario usuario) {
+		return horarioDao.consultarHorarioCadastro(horario, usuario);
+	}
 	
 	public List<HashMap> consultarHorariosCadastrados(Usuario usuario) {
 		return horarioDao.consultarHorariosCadastros(usuario);

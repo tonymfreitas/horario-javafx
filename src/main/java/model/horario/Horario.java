@@ -1,52 +1,29 @@
 package main.java.model.horario;
 
-import main.java.model.materia.Materia;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import main.java.model.usuario.Usuario;
-import main.java.utils.DiasSemana;
-import main.java.utils.Periodos;
 
 public class Horario {
 
-	private Materia materia;
-	private int dia;
-	private Usuario usuario;
+	private ArrayList<HashMap> materias;
 	private int  periodo;
 	private String id;
 	
 	public Horario() {}
 	
-	public Horario(Materia materia, Usuario usuario, int dia, int periodo) {
-		this.materia = materia;
-		this.usuario = usuario;
-		this.dia = dia;
+	public Horario(ArrayList<HashMap> materias, int periodo) {
 		this.periodo = periodo;
+		this.setMaterias(materias);
 	}
 	
-	public Materia getMateria() {
-		return materia;
-	}
-	public void setMateria(Materia materia) {
-		this.materia = materia;
-	}
-	public Usuario getUsuario() {
-		return usuario;
-	}
-	public void setUsuario(Usuario usuario) {
-		this.usuario = usuario;
-	}
+
 	public String getId() {
 		return id;
 	}
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public int getDia() {
-		return dia;
-	}
-
-	public void setDia(int dia) {
-		this.dia = dia;
 	}
 
 	public int getPeriodo() {
@@ -55,6 +32,14 @@ public class Horario {
 
 	public void setPeriodo(int periodo) {
 		this.periodo = periodo;
+	}
+
+	public ArrayList<HashMap> getMaterias() {
+		return materias;
+	}
+
+	public void setMaterias(ArrayList<HashMap> materias) {
+		this.materias = materias;
 	}
 	
 }

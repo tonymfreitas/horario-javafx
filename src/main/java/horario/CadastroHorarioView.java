@@ -47,7 +47,7 @@ public class CadastroHorarioView extends Application {
 	private Button btVoltar, btCadastrar;
 
 	public Periodos periodoSelecionado = null;
-	
+	ArrayList<Materia> materiasListadas;
 	ArrayList<HashMap> materiasAdicionadas = new ArrayList<>();
 
 	@Override
@@ -71,9 +71,9 @@ public class CadastroHorarioView extends Application {
 
 	private void listarMaterias() {
 		MateriaController materiaCtrl = new MateriaController();
-		ArrayList<Materia> materias = (ArrayList<Materia>) materiaCtrl.listarMaterias(SessionController.getUsuario());
+		materiasListadas = (ArrayList<Materia>) materiaCtrl.listarMaterias(SessionController.getUsuario());
 		itensMateria = FXCollections.observableArrayList();
-		for(Materia materia : materias) {
+		for(Materia materia : materiasListadas) {
 			itensMateria.add(materia.getDescricao());
 		}
 	}
@@ -169,17 +169,46 @@ public class CadastroHorarioView extends Application {
 		return materiasAdicionadas.size() == 0 || periodoSelecionado == null ? false : true;
 	}
 
+	private boolean verificarMateriaInvalida() {
+		boolean materiaInvalida = false;
+		ObservableList<String> materias = listaMaterias.getCheckModel().getCheckedItems();
+		for(HashMap materiaAdicionada : materiasAdicionadas) {
+			for(String materia : materias) {
+				System.out.println(materiaAdicionada);
+				System.out.println(materia);
+				if(!materiaAdicionada.get("materia").equals(materia)) {
+					materiaInvalida = true;
+					Alert erro = AlertUsuario.error("Erro", "A matéria : " + materia + " não consta na lista de matérias adicionadas");
+					erro.showAndWait();
+				}
+			}
+		}
+		
+		return materiaInvalida;
+	}
+	
+	private void setIdsMateria() {
+		for(HashMap materiaAdicionada : materiasAdicionadas) {
+			for(Materia materia : materiasListadas) {
+				if(materia.getDescricao().equals(materiaAdicionada.get("materia"))) {
+					materiaAdicionada.put("idmateria", materia.getId());
+				}
+			}
+		}	
+	}
+	
 	private boolean cadastrarHorario() {
 		boolean cadastrouHorario = false;
 		boolean cadastrouAula = false;
-		if (validarCamposVazios()) {
+		if (validarCamposVazios() && !verificarMateriaInvalida()) {
 			HorarioController horarioCtrl = new HorarioController();
 			MateriaController materiaCtrl = new MateriaController();
 			Usuario usuario = SessionController.getUsuario();
-			Horario horario = new Horario(materiaSelecionada, usuario, diaSelecionado.getDia(), periodoSelecionado.getPeriodo());
+			setIdsMateria();
+			Horario horario = new Horario(materiasAdicionadas, periodoSelecionado.getPeriodo());
 			
 			if (!consultarHorarioCadastro(horario)) {
-				cadastrouAula = horarioCtrl.cadastrarHorario(horario);
+				cadastrouAula = horarioCtrl.cadastrarHorario(horario, usuario);
 				cadastrouHorario = materiaCtrl.cadastrarAulaMateria(horario);
 			} else {
 				Alert info = AlertUsuario.info("Informação cadastro horário",
@@ -192,7 +221,8 @@ public class CadastroHorarioView extends Application {
 
 	private boolean consultarHorarioCadastro(Horario horario) {
 		HorarioController horarioCtrl = new HorarioController();
-		return horarioCtrl.consultarHorarioCadastro(horario);
+		//return horarioCtrl.consultarHorarioCadastro(horario);
+		return false;
 	}
 
 	private void listarDiasDaSemana() {
@@ -207,8 +237,7 @@ public class CadastroHorarioView extends Application {
 			materia.put("materia", listaMaterias.getCheckModel().getCheckedItems().get(index));
 			materia.put("dia", resultado.get());
 			materiasAdicionadas.add(materia);
-		} 	
-	
+		} 		
 	} 
 	
 	private void setListeners() {

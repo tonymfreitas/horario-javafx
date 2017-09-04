@@ -14,16 +14,15 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import main.java.PrincipalView;
-import main.java.model.horario.Horario;
 import main.java.model.horario.HorarioController;
 import main.java.model.horario.HorariosTableProperty;
 import main.java.model.usuario.Usuario;
@@ -39,6 +38,8 @@ public class HorariosView extends Application {
 	private TableColumn<HorariosTableProperty, String> periodo;
 	private TableColumn<HorariosTableProperty, Integer> qntMaterias;
 	private TableColumn<HorariosTableProperty, Button> btExcluir;
+	private TableColumn<HorariosTableProperty, Button> btEditar;
+	private TableColumn<HorariosTableProperty, Button> btVisualizar;
 	private ObservableList<HorariosTableProperty> itensHorarios;
 	private Label lbTituloView;
 	private Stage stage;
@@ -78,11 +79,22 @@ public class HorariosView extends Application {
 		return periodoRetorno;
 	}
 	
-	private void excluirHorario(Horario horario) {
-		Alert excluirAlert = AlertUsuario.confirmation("Exclusão horário", "Deseja excluir o horário do " + horario.getPeriodo() + " periodo ?");
+	private void excluirHorario(HashMap horario) {
+		Alert excluirAlert = AlertUsuario.confirmation("Exclusão horário", "Deseja excluir o horário do " + String.valueOf(horario.get("periodo")) + " periodo ?");
 		Optional<ButtonType> excluir = excluirAlert.showAndWait();
 		if(excluir.get().getButtonData() == ButtonData.YES) {
 			HorarioController horarioCtrl = new HorarioController();
+			boolean excluiu = horarioCtrl.excluirHorario(horario);
+			if(excluiu) {
+				Alert info = AlertUsuario.info("Exclusão horário", "Horário excluído com sucesso !!");
+				info.showAndWait();
+				itensHorarios.clear();
+				listarHorariosCadastrados();
+				tbHorarios.setItems(itensHorarios);
+			} else {
+				Alert erro = AlertUsuario.error("Erro", "Falha ao tentar excluir o horário");
+				erro.showAndWait();
+			}
 		}
 	}
 	
@@ -91,9 +103,47 @@ public class HorariosView extends Application {
 
 			@Override
 			public void handle(ActionEvent event) {
-				//excluirHorario(horario);
+				excluirHorario(horario);
 			}
 		});
+	}
+	
+	private void addListenerBotaoVisualizar(Button btVisualizar, HashMap horario) {
+		btVisualizar.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				String periodo = String.valueOf(horario.get("periodo"));
+				String idhorario = String.valueOf(horario.get("idhorario"));
+				int qntMaterias = Integer.parseInt((String) horario.get("qntmaterias"));
+				HorariosTableProperty properts = new HorariosTableProperty(periodo, idhorario, qntMaterias);
+				try {
+					stage.setUserData(properts);
+					SessionController.setProperts(properts);	
+					new HorarioDetalhesView().start(stage);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	private void addListenerBotaoEditar(Button btEditar, HashMap horario) {
+		
+		btEditar.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				stage.setUserData(horario);
+				try {
+					new EditarHorarioView().start(stage);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		
 	}
 	
 	private void listarHorariosCadastrados() {
@@ -114,8 +164,12 @@ public class HorariosView extends Application {
 				int quantidadeMaterias = Integer.parseInt(quantidadeRetornado);
 				String idhorario = (String) horario.get("idhorario");
 				Button btExcluir = new Button("Excluir");
+				Button btEditar = new Button("Editar");
+				Button btVisualizar = new Button("Visualizar");
 				addListenerBotaoExcluir(btExcluir, horario);
-				HorariosTableProperty horariosProperty = new HorariosTableProperty(periodo, quantidadeMaterias, btExcluir);
+				addListenerBotaoVisualizar(btVisualizar, horario);
+				addListenerBotaoEditar(btEditar, horario);
+				HorariosTableProperty horariosProperty = new HorariosTableProperty(periodo, quantidadeMaterias, btVisualizar, btEditar, btExcluir);
 				horariosProperty.setIdHorario(idhorario);
 				itensHorarios.add(horariosProperty);
 			}
@@ -132,12 +186,17 @@ public class HorariosView extends Application {
 		tbHorarios = new TableView<HorariosTableProperty>();
 		periodo = new TableColumn<HorariosTableProperty, String>("Período");
 		qntMaterias = new TableColumn<HorariosTableProperty, Integer>("Quantidade de matérias");
+		btVisualizar = new TableColumn<HorariosTableProperty, Button>("Visualizar");
+		btEditar = new TableColumn<HorariosTableProperty, Button>("Editar");
 		btExcluir = new TableColumn<HorariosTableProperty, Button>("Excluir");
 		periodo.setCellValueFactory(new PropertyValueFactory<HorariosTableProperty, String>("periodo"));
 		qntMaterias.setCellValueFactory(new PropertyValueFactory<HorariosTableProperty, Integer>("quantidadeMaterias"));
+		btVisualizar.setCellValueFactory(new PropertyValueFactory<>("btVisualizar"));
+		btVisualizar.setCellValueFactory(new PropertyValueFactory<>("btVisualizar"));
+		btEditar.setCellValueFactory(new PropertyValueFactory<>("btEditar"));
 		btExcluir.setCellValueFactory(new PropertyValueFactory<>("btExcluir"));
 		
-		tbHorarios.getColumns().addAll(periodo, qntMaterias, btExcluir);
+		tbHorarios.getColumns().addAll(periodo, qntMaterias, btVisualizar, btEditar, btExcluir);
 		tbHorarios.setItems(itensHorarios);
 		
 		pane.getChildren().addAll(lbTituloView, btVoltar, tbHorarios);
@@ -174,21 +233,6 @@ public class HorariosView extends Application {
 				} catch (Exception e) {
 					e.printStackTrace();
 				};
-			}
-		});
-		
-		tbHorarios.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<HorariosTableProperty>() {
-
-			@Override
-			public void changed(ObservableValue<? extends HorariosTableProperty> observable,
-					HorariosTableProperty oldValue, HorariosTableProperty newValue) {
-				try {
-					stage.setUserData(newValue);
-					SessionController.setProperts(newValue);
-					new HorarioDetalhesView().start(stage);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 			}
 		});
 				

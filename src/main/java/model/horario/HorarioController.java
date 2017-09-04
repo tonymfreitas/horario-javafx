@@ -13,6 +13,10 @@ public class HorarioController {
 		return horarioDao.cadastrarHorario(horario, usuario);
 	}
 	
+	public boolean editarHorario(Horario horario, Usuario usuario) {
+		return horarioDao.editarHorario(horario, usuario);
+	}
+	
 	public boolean consultarHorarioCadastro(Horario horario, Usuario usuario) {
 		return horarioDao.consultarHorarioCadastro(horario, usuario);
 	}
@@ -21,16 +25,12 @@ public class HorarioController {
 		return horarioDao.consultarHorariosCadastros(usuario);
 	}
 	
-	public List<HashMap> listarMateriasPorPeriodo(Usuario usuario, int periodo) { 
-		return horarioDao.listarMateriasPorPeriodo(usuario, periodo);
+	public List<HashMap> listarMateriasPorPeriodo(HashMap<String, String> params) { 
+		return horarioDao.listarMateriasPorPeriodo(params);
 	}
 	
-	public boolean excluirHorario(Horario horario) {
-		boolean excluiu = false;
-		if(horarioDao.excluirAulasHorario(horario)) {
-			excluiu = horarioDao.excluirHorario(horario);
-		}
-		return excluiu;
+	public boolean excluirHorario(HashMap horario) {
+		return horarioDao.excluirHorario(horario);
 	}
 
 	

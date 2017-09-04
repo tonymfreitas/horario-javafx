@@ -13,7 +13,26 @@ import main.java.model.materia.Materia;
 import main.java.model.usuario.Usuario;
 
 public class HorarioDao {
+	
+	public String consultarHorarioCadastrado(Horario horario, Usuario usuario) {
+		Connection conn = new ConnectionFactory().obterConexao();
+		String sql = "select * from horario where periodo = ?::numeric and idusuario = ?::uuid";
+		String idhorario = "";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, horario.getPeriodo());
+			pstmt.setString(2, usuario.getId());
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				idhorario = rs.getString("id");
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
 
+		return idhorario;
+	}
+	
 	public boolean cadastrarHorario(Horario horario, Usuario usuario) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		boolean cadastrouHorario = false;
@@ -36,7 +55,8 @@ public class HorarioDao {
 			cadastrouHorario = true;
 			ArrayList<HashMap> materias = horario.getMaterias();
 			HashMap<String, String> materiaPeriodo = new HashMap<>();
-			materiaPeriodo.put("periodo", String.valueOf(horario.getPeriodo()));
+			String idhorario = consultarHorarioCadastrado(horario, usuario);
+			materiaPeriodo.put("idhorario", idhorario);
 			for(HashMap materia : materias) {
 				materiaPeriodo.put("dia", String.valueOf(materia.get("dia")));
 				materiaPeriodo.put("idmateria",String.valueOf( materia.get("idmateria")));
@@ -48,15 +68,34 @@ public class HorarioDao {
 		return cadastrouHorario && cadastrouMateriaPeriodo;
 	}
 	
-	public boolean cadastrarMateriaPeriodo(HashMap<String, String> materiaPeriodo) {
+	public boolean editarHorario(Horario horario, Usuario usuario) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		int resultado = 0;
-		String sql = "insert into materiaperiodo(idmateria, periodo, dia) values(?::uuid,?,?)";
+		String sql = "update horario set periodo = ?::numeric where idhorario = ?::uuid";
 
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, materiaPeriodo.get("idmateria"));
-			pstmt.setInt(2, Integer.parseInt(materiaPeriodo.get("periodo")));
+			pstmt.setString(2, String.valueOf(materiaPeriodo.get("idhorario")));
+			pstmt.setInt(3, Integer.parseInt(materiaPeriodo.get("dia")));
+			resultado = pstmt.executeUpdate();
+			conn.close();
+			pstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return resultado == 1 ? true : false;
+	}
+	
+	public boolean cadastrarMateriaPeriodo(HashMap<String, String> materiaPeriodo) {
+		Connection conn = new ConnectionFactory().obterConexao();
+		int resultado = 0;
+		String sql = "insert into materiaperiodo(idmateria, idhorario, dia) values(?::uuid,?::uuid,?)";
+
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, materiaPeriodo.get("idmateria"));
+			pstmt.setString(2, String.valueOf(materiaPeriodo.get("idhorario")));
 			pstmt.setInt(3, Integer.parseInt(materiaPeriodo.get("dia")));
 			resultado = pstmt.executeUpdate();
 			conn.close();
@@ -94,7 +133,7 @@ public class HorarioDao {
 				"	COUNT(MTP.ID) AS QNTMATERIAS\r\n" + 
 				"FROM \r\n" + 
 				"	HORARIO\r\n" + 
-				"		INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.PERIODO = MTP.PERIODO\r\n" + 
+				"		INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.ID = MTP.IDHORARIO\r\n" + 
 				"		INNER JOIN USUARIO ON HORARIO.IDUSUARIO = USUARIO.ID\r\n" + 
 				"WHERE\r\n" + 
 				"	USUARIO.ID = ?::uuid\r\n" + 
@@ -121,7 +160,7 @@ public class HorarioDao {
 		return listaDeHorarios;
 	}
 	
-	public List<HashMap> listarMateriasPorPeriodo(Usuario usuario, int periodo) {
+	public List<HashMap> listarMateriasPorPeriodo(HashMap<String, String> params) {
 
 		Connection conn = new ConnectionFactory().obterConexao();
 		String sql = "SELECT\r\n" + 
@@ -130,17 +169,17 @@ public class HorarioDao {
 				"	MTP.IDMATERIA,\r\n" + 
 				"	MATERIA.DESCRICAO\r\n" + 
 				"FROM\r\n" + 
-				"	HORARIO INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.PERIODO = MTP.PERIODO\r\n" + 
+				"	HORARIO INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.ID = MTP.IDHORARIO\r\n" + 
 				"	INNER JOIN MATERIA ON MTP.IDMATERIA = MATERIA.ID\r\n" +
 				"WHERE\r\n" + 
-				"	HORARIO.PERIODO = ?::numeric\r\n" + 
+				"	HORARIO.ID = ?::uuid\r\n" + 
 				"	AND HORARIO.IDUSUARIO = ?::uuid";
 		List<HashMap> listaDeMaterias = new ArrayList<HashMap>();
 		
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, periodo);
-			pstmt.setString(2, usuario.getId());
+			pstmt.setString(1, String.valueOf(params.get("idhorario")));
+			pstmt.setString(2, String.valueOf(params.get("idusuario")));
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()) {
 				HashMap<String, String> materia = new HashMap<String, String>();
@@ -157,14 +196,14 @@ public class HorarioDao {
 		return listaDeMaterias;
 	}
 	
-	public boolean excluirHorario(Horario horario) {
+	public boolean excluirHorario(HashMap horario) {
 		Connection conn = new ConnectionFactory().obterConexao();
 		int resultado = 0;
 		String sql = "DELETE FROM HORARIO WHERE ID = ?::uuid";
 
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, horario.getId());
+			pstmt.setString(1, String.valueOf(horario.get("idhorario")));
 			resultado = pstmt.executeUpdate();
 			conn.close();
 			pstmt.close();

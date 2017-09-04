@@ -101,11 +101,14 @@ public class HorarioDetalhesView extends Application {
 
 	private void listarMaterias(HorariosTableProperty properts) {
 
+		String idhorario = properts.getIdHorario();
+		String idusuario = SessionController.getUsuario().getId();
+		HashMap params = new HashMap<String, String>();
+		params.put("idhorario", idhorario);
+		params.put("idusuario", idusuario);
+		
 		HorarioController horarioCtrl = new HorarioController();
-		Usuario usuario = SessionController.getUsuario();
-		int periodo = converterPeriodo(properts.periodoProperty().getValue());
-		ArrayList<HashMap> listaDeMaterias = (ArrayList<HashMap>) horarioCtrl.listarMateriasPorPeriodo(usuario,
-				periodo);
+		ArrayList<HashMap> listaDeMaterias = (ArrayList<HashMap>) horarioCtrl.listarMateriasPorPeriodo(params);
 		if (listaDeMaterias != null) {
 			listarMateriasComponentes(listaDeMaterias);
 		}

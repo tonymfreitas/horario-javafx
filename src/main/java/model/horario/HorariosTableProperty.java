@@ -14,11 +14,21 @@ public class HorariosTableProperty {
 	private final IntegerProperty quantidadeMaterias;
 	private String idhorario, idmateria;
 	private ObjectProperty<Button> btExcluir;
+	private ObjectProperty<Button> btEditar;
+	private ObjectProperty<Button> btVisualizar;
 	
-	public HorariosTableProperty(String periodo, int quantidadeMaterias, Button btExcluir) {
+	public HorariosTableProperty(String periodo, String idhorario, int quantidadeMaterias) {
 		this.periodo = new SimpleStringProperty(periodo);
 		this.quantidadeMaterias = new SimpleIntegerProperty(quantidadeMaterias);
+		this.idhorario = idhorario;
+	}
+	
+	public HorariosTableProperty(String periodo, int quantidadeMaterias, Button btVisualizar, Button btEditar, Button btExcluir) {
+		this.periodo = new SimpleStringProperty(periodo);
+		this.quantidadeMaterias = new SimpleIntegerProperty(quantidadeMaterias);
+		this.btEditar = new SimpleObjectProperty<>(btEditar);
 		this.btExcluir = new SimpleObjectProperty<>(btExcluir);
+		this.btVisualizar = new SimpleObjectProperty<>(btVisualizar);
 	}
 	
 	public HorariosTableProperty(String periodo, int quantidadeMaterias, String idmateria, String idhorario) {
@@ -66,6 +76,22 @@ public class HorariosTableProperty {
 	
 	public void setBtExcluir(ObjectProperty<Button> btExcluir) {
 		this.btExcluir = btExcluir;
+	}
+
+	public ObjectProperty<Button> btEditarProperty() {
+		return btEditar;
+	}
+
+	public void setBtEditar(ObjectProperty<Button> btEditar) {
+		this.btEditar = btEditar;
+	}
+
+	public ObjectProperty<Button> btVisualizarProperty() {
+		return btVisualizar;
+	}
+
+	public void setBtVisualizar(ObjectProperty<Button> btVisualizar) {
+		this.btVisualizar = btVisualizar;
 	}
 	
 }

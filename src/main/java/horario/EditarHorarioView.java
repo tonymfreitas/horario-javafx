@@ -37,7 +37,7 @@ import main.java.utils.Periodos;
 import main.java.utils.SessionController;
 import main.java.utils.alert.AlertUsuario;
 
-public class CadastroHorarioView extends Application {
+public class EditarHorarioView extends Application {
 
 	private AnchorPane pane;
 	private Stage stage;
@@ -47,22 +47,27 @@ public class CadastroHorarioView extends Application {
 	private List<String> diasSemana = new ArrayList<>();
 	private ObservableList<String> itensMateria;
 	private ObservableList<Periodos> itensPeriodos;
-	private Button btVoltar, btCadastrar;
+	private Button btVoltar, btEditar;
 	private boolean cadastroMateria;
 
 	public Periodos periodoSelecionado = null;
 	ArrayList<Materia> materiasListadas;
 	ArrayList<HashMap> materiasAdicionadas = new ArrayList<>();
-
+	HashMap horarioStage;
+	boolean edit = false;
+	
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		
+		horarioStage = (HashMap) primaryStage.getUserData();
 		listarMaterias();
 
 		iniciarComponentes();
+		marcarPeriodo(Integer.parseInt((String) horarioStage.get("periodo")) - 1);
 		iniciarEstiloNosComponentes();
 		setListeners();
+		marcarMaterias();
 
 		Scene cena = new Scene(pane);
 		primaryStage.setScene(cena);
@@ -74,12 +79,33 @@ public class CadastroHorarioView extends Application {
 
 	}
 	
+	private void marcarMaterias() {
+		edit = true;
+		MateriaController materiaCtrl = new MateriaController();
+		Usuario usuario = SessionController.getUsuario();
+		Horario horario = new Horario();
+		horario.setId(String.valueOf(horarioStage.get("idhorario")));
+		ArrayList<Materia> materias = (ArrayList<Materia>) materiaCtrl.listarMaterias(usuario, horario);
+		for(Materia materia : materias) {
+			HashMap<String,String> mt = new HashMap<>();
+			int dia = DataUtils.converterDiaSemana(materia.getDescricao());
+			mt.put("dia", String.valueOf(dia));
+			mt.put("materia", materia.getDescricao());
+			listaMaterias.getCheckModel().check(dia);
+			listaMaterias.scrollTo(dia);
+			materiasAdicionadas.add(mt);
+		}
+		edit = false;
+	}
+
 	private void marcarPeriodo(int periodo) {
 		listaPeriodos.getSelectionModel().select(periodo);
 		listaPeriodos.getFocusModel().focus(periodo);
 		listaPeriodos.scrollTo(periodo);
+		periodoSelecionado = listaPeriodos.getSelectionModel().getSelectedItem();
 	}
 
+	
 	private void listarMaterias() {
 		MateriaController materiaCtrl = new MateriaController();
 		materiasListadas = (ArrayList<Materia>) materiaCtrl.listarMaterias(SessionController.getUsuario());
@@ -130,8 +156,8 @@ public class CadastroHorarioView extends Application {
 		btVoltar = new Button("Voltar");
 		lbListaMaterias = new Label("Matérias");
 
-		btCadastrar = new Button("Cadastrar");
-		pane.getChildren().addAll(lbTituloView, btCadastrar, btVoltar,
+		btEditar = new Button("Cadastrar");
+		pane.getChildren().addAll(lbTituloView, btEditar, btVoltar,
 				listaMaterias, lbListaMaterias, listaPeriodos, lbPeriodo);
 	}
 
@@ -155,8 +181,8 @@ public class CadastroHorarioView extends Application {
 
 		btVoltar.setLayoutX((pane.getWidth() - btVoltar.getWidth() - 20));
 		btVoltar.setLayoutY(20);
-		btCadastrar.setLayoutX((pane.getWidth() - btCadastrar.getWidth()) / 2);
-		btCadastrar.setLayoutY(400);
+		btEditar.setLayoutX((pane.getWidth() - btEditar.getWidth()) / 2);
+		btEditar.setLayoutY(400);
 	}
 
 	private void iniciarEstiloNosComponentes() {
@@ -164,7 +190,7 @@ public class CadastroHorarioView extends Application {
 		pane.setId("pane-cadastro-horario");
 		lbTituloView.setId("label-titulo");
 		btVoltar.setId("botao-voltar");
-		btCadastrar.setId("botao-cadastrar");
+		btEditar.setId("botao-cadastrar");
 		lbListaMaterias.getStyleClass().add("label-titulo-view");
 		lbPeriodo.getStyleClass().add("label-titulo-view");
 	}
@@ -213,26 +239,23 @@ public class CadastroHorarioView extends Application {
 		}	
 	}
 	
-	private boolean cadastrarHorario() {
+	private boolean alterarHorario() {
 		boolean cadastrouHorario = false;
-		boolean cadastrouAula = false;
 		if (validarCamposVazios() && !verificarMateriaInvalida()) {
 			HorarioController horarioCtrl = new HorarioController();
-			MateriaController materiaCtrl = new MateriaController();
 			Usuario usuario = SessionController.getUsuario();
 			setIdsMateria();
 			Horario horario = new Horario(materiasAdicionadas, periodoSelecionado.getPeriodo());
 			
 			if (!consultarHorarioCadastro(horario, usuario)) {
 				cadastrouHorario = horarioCtrl.cadastrarHorario(horario, usuario);
-				cadastrouAula = materiaCtrl.cadastrarAulaMateria(horario, usuario);
 			} else {
 				Alert info = AlertUsuario.info("Informação cadastro horário",
 						"Um horário ja foi cadastrado para o período selecionado");
 				info.showAndWait();
 			}
 		}
-		return cadastrouAula && cadastrouHorario;
+		return cadastrouHorario;
 	}
 
 	private boolean consultarHorarioCadastro(Horario horario, Usuario usuario) {
@@ -263,7 +286,7 @@ public class CadastroHorarioView extends Application {
 			@Override
 			public void onChanged(javafx.collections.ListChangeListener.Change<? extends String> c) {
 				if(c.next()) {
-					if(c.wasAdded()) {
+					if(c.wasAdded() && !edit) {
 						listarDiasDaSemana();
 					} else if(c.wasRemoved()) {
 						
@@ -295,32 +318,6 @@ public class CadastroHorarioView extends Application {
 
 	
 
-//		listaMaterias.setCellFactory(new Callback<ListView<Materia>, ListCell<Materia>>() {
-//
-//			@Override
-//			public ListCell<Materia> call(ListView<Materia> param) {
-//				ListCell<Materia> cell = new ListCell<Materia>() {
-//
-//					@Override
-//					protected void updateItem(Materia materia, boolean bln) {
-//						super.updateItem(materia, bln);
-//						if (materia != null) {
-//							setText(materia.getDescricao());
-//						}
-//					}
-//				};
-//				return cell;
-//			}
-//		});
-
-//		listaMaterias.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Materia>() {
-//
-//			@Override
-//			public void changed(ObservableValue<? extends Materia> observable, Materia oldValue, Materia newValue) {
-//				materiaSelecionada = newValue;
-//				materiaSelecionada.criarDezAulas();
-//			}
-//		});
 		
 		listaPeriodos.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Periodos>() {
 
@@ -330,12 +327,12 @@ public class CadastroHorarioView extends Application {
 			}
 		});
 
-		btCadastrar.setOnAction(new EventHandler<ActionEvent>() {
+		btEditar.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
 				if (cadastrarHorario()) {
-					Alert success = AlertUsuario.success("Cadastro horário", "Cadastro concluído com sucesso");
+					Alert success = AlertUsuario.success("Edição horário", "Horário alterado com sucesso");
 					success.showAndWait();
 					try {
 						new PrincipalView().start(stage);

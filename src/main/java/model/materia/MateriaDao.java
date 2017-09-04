@@ -73,12 +73,9 @@ public class MateriaDao {
 
 	public String consultarHorario(Horario horario, Usuario usuario) {
 		Connection conn = new ConnectionFactory().obterConexao();
-		String sql = "SELECT DISTINCT HORARIO.ID AS IDHORARIO " + ""
-				+ "FROM "
-				+ "HORARIO INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.PERIODO = MTP.PERIODO " 
-				+ "WHERE "
-				+ "MTP.PERIODO = ?::numeric "
-				+ "AND HORARIO.IDUSUARIO = ?::uuid";
+		String sql = "SELECT DISTINCT HORARIO.ID AS IDHORARIO " + "" + "FROM "
+				+ "HORARIO INNER JOIN MATERIAPERIODO AS MTP ON HORARIO.ID = MTP.IDHORARIO " + "WHERE "
+				+ "HORARIO.PERIODO = ?::numeric " + "AND HORARIO.IDUSUARIO = ?::uuid";
 		String idhorario = "";
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -124,18 +121,18 @@ public class MateriaDao {
 		}
 		return resultado == 1 ? true : false;
 	}
-	
+
 	public boolean cadastrarAulaMateria(Horario horario, Usuario usuario) {
 
 		String idhorario = consultarHorario(horario, usuario);
 		boolean cadastrouAula = false;
-		
+
 		ArrayList<HashMap> materias = horario.getMaterias();
-		for(HashMap materia : materias) {
+		for (HashMap materia : materias) {
 			materia.put("idhorario", idhorario);
 			cadastrouAula = cadastrarAula(materia, usuario);
 		}
-		
+
 		return cadastrouAula;
 	}
 
@@ -153,6 +150,34 @@ public class MateriaDao {
 				Materia materia = new Materia();
 				materia.setDescricao(rs.getString("descricao"));
 				materia.setId(rs.getString("id"));
+				materias.add(materia);
+			}
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+
+		return materias;
+	}
+
+	public List<HashMap> listarMateriasPorHorario(Usuario usuario, Horario horario) {
+
+		Connection conn = new ConnectionFactory().obterConexao();
+		List<HashMap> materias = new ArrayList<>();
+		String sql = "SELECT MATERIA.DESCRICAO, MATERIAPERIODO.DIA FROM HORARIO "
+				+ "INNER JOIN MATERIAPERIODO ON HORARIO.ID = MATERIAPERIODO.IDHORARIO "
+				+ "INNER JOIN MATERIA ON MATERIAPERIODO.IDMATERIA = MATERIA.ID WHERE HORARIO.ID = ?::uuid "
+				+ "AND HORARIO.IDUSUARIO = ?::uuid";
+
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, horario.getId());
+			pstmt.setString(2, usuario.getId());
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				HashMap<String, String> materia = new HashMap<>();
+				Materia materia = new Materia();
+				materia.setDescricao(rs.getString("descricao"));
+				materia.ge .setId(rs.getString("dia"));
 				materias.add(materia);
 			}
 		} catch (SQLException e1) {
